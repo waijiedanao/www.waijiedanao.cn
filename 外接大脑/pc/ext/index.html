@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cookie操作测试</title>
+</head>
+
+<body>
+    <h1>cookie设置</h1>
+    <h5>用于页面cookie管理</h5>
+    <h5> <a href="cookie_ext.zip">下载扩展</a> </h5>
+    <p>安装方法：打开chrome://extensions/，启用开发者模式，将压缩包移动到此页面自动添加，或解压手动加载</p>
+    <input id="cookie" type="text" value="user=my666">
+    <button id="btn_clear">设置当前页cookie</button>
+    <div id="tips"></div>
+    <h5>document.cookie</h5>
+    <div id="document_cookie"></div>
+    <script>
+        function ShowCookie() {
+            document.getElementById('document_cookie').innerText = document.cookie
+        }
+        function tip(msg) {
+            document.getElementById('tips').innerText = JSON.stringify(msg, null, 4)
+        }
+        // The ID of the extension we want to talk to.
+        var editorExtensionId = localStorage.chrome_cookie_extensionId
+        // Make a simple request:
+
+        var url = location.origin //如果要修改微信的cookie，url改成 https://mp.weixin.qq.com/
+        document.getElementById('btn_clear').onclick = SetCookie
+        SetCookie()
+        function SetCookie() {
+            if (!editorExtensionId || !chrome.runtime) return tip('未安装扩展，或当前域不允许访问扩展')
+            var cookie = document.getElementById("cookie").value
+            try {
+                chrome.runtime.sendMessage(editorExtensionId, { m: 'cookie', url: url, cookie: cookie },
+                    function (res) {
+                        if (chrome.runtime.lastError) {
+                            return tip(chrome.runtime.lastError.message)
+                        }
+                        tip(res)
+                        ShowCookie()
+                    })
+            } catch (error) {
+                tip('扩展未运行')
+            }
+        }
+
+        /*
+{m: 'cookie',url: url, cookie: cookie}
+通过cookie字符串的形式设置多个cookie
+
+
+{m: 'set',url: url, name: name, value: value}
+单独设置cookie，提供以下可选参数
+details ( object )
+有关要设置的 Cookie 的详情。
+属性
+url ( string )
+与要设置的 Cookie 相关联的请求 URI，它的值会影响到创建的 Cookie 的默认域名和路径。如果这一 URL 的主机权限没有在清单文件中指定，则这一API调用会失败。
+name ( optional string )
+Cookie 的名称，如果省略的话默认为空。
+value ( optional string )
+Cookie 的值，如果省略的话默认为空。
+domain ( optional string )
+Cookie 的域名。如果省略的话该 Cookie 仅适用于 URL 中指定的主机。
+path ( optional string )
+Cookie 的路径，默认为 url 参数的路径部分。
+secure ( optional boolean )
+该 Cookie 是否应该标记为 Secure（安全的），默认为 false。
+httpOnly ( optional boolean )
+该 Cookie 是否应该标记为 HttpOnly（仅用于 HTTP），默认为 false。
+expirationDate ( optional double )
+Cookie 的过期日期，以自从 UNIX 纪元（1970 年 1 月 1 日午夜）开始所经过的秒数表示。如果省略的话，该 Cookie 仅在会话中有效。
+        */
+    </script>
+</body>
+
+</html>
