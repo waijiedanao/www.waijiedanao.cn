@@ -15,12 +15,7 @@
     <input id="cookie" type="text" value="user=my666">
     <button id="btn_clear">设置当前页cookie</button>
     <div id="tips"></div>
-    <h5>document.cookie</h5>
-    <div id="document_cookie"></div>
     <script>
-        function ShowCookie() {
-            document.getElementById('document_cookie').innerText = document.cookie
-        }
         function tip(msg) {
             document.getElementById('tips').innerText = JSON.stringify(msg, null, 4)
         }
@@ -29,19 +24,18 @@
         // Make a simple request:
 
         var url = location.origin //如果要修改微信的cookie，url改成 https://mp.weixin.qq.com/
+        url = 'https://mp.weixin.qq.com/'
         document.getElementById('btn_clear').onclick = SetCookie
-        SetCookie()
         function SetCookie() {
             if (!editorExtensionId || !chrome.runtime) return tip('未安装扩展，或当前域不允许访问扩展')
             var cookie = document.getElementById("cookie").value
             try {
-                chrome.runtime.sendMessage(editorExtensionId, { m: 'cookie', url: url, cookie: cookie },
+                chrome.runtime.sendMessage(editorExtensionId, { m: 'cookie', go: 1, del: 1, set: 1, url: url, cookie: cookie },
                     function (res) {
                         if (chrome.runtime.lastError) {
                             return tip(chrome.runtime.lastError.message)
                         }
                         tip(res)
-                        ShowCookie()
                     })
             } catch (error) {
                 tip('扩展未运行')
@@ -51,7 +45,10 @@
         /*
 {m: 'cookie',url: url, cookie: cookie}
 通过cookie字符串的形式设置多个cookie
-
+可选参数，如果没选参数，就只是获取cookie
+set 设置cookie
+go  设置完后直接新标签打开链接
+del 设置前清除cookie
 
 {m: 'set',url: url, name: name, value: value}
 单独设置cookie，提供以下可选参数
@@ -74,6 +71,11 @@ httpOnly ( optional boolean )
 该 Cookie 是否应该标记为 HttpOnly（仅用于 HTTP），默认为 false。
 expirationDate ( optional double )
 Cookie 的过期日期，以自从 UNIX 纪元（1970 年 1 月 1 日午夜）开始所经过的秒数表示。如果省略的话，该 Cookie 仅在会话中有效。
+
+
+a={"msg":"success","code":0,"responseData":{"url":"https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN&token=2003291300","cookies":{"rand_info":"CAESID+0dSq1DHXqC803pJ3r8SV4VT1JAqyKYzArH5kwA/FB","ticket":"bb9366339230635b001e1cbb09d4a842c0258d12","slave_bizuin":"3286883764","cert":"DFUoh1dENexaiZDtwIuorPT7j2aUoJ_e","slave_user":"gh_51e13fe68e65","ticket_id":"gh_51e13fe68e65","uuid":"e08a9f16a629a128a10f50e382306190","ua_id":"kEBqlpN8YiyZo8xSAAAAAOStuYXtsNKiqKzlyqMfBKc=","xid":"","openid2ticket_otN3pw7XHrpmMOYcA6v7Ej1ubNA8":"T2uoHjwNv4yyMVKOORUN7fGIJf1s9oKDmM0Xyhxy4t0=","data_bizuin":"3286883764","data_ticket":"9yupITxGb78u34hp613YSROcDzrUHuwpyCIxTm8CwfI3EchHvQG9xAO8uNF25JxI","slave_sid":"YUgzUEVOWHVzVG1qNGZvY3I2ZVBTazBVbHQyQlpfcEhGbHVUUWpiVXZPTmJ4d3dvUTc3WnB1VmtDUng4blhlOE81cElZdV9pVVlaMVZGOWhibDhLbDVOWE1NX2RUVmRpR2d5Q2NVMkVsZUJKUVRXOWRtWU5LckExbExIRjNaTFVHRTBja2tPQTlEdGtXTXhn","mm_lang":"zh_CN","bizuin":"3286883764"}}}
+var ck=''
+for(var  i in a.responseData.cookies)ck+=`${i}=${a.responseData.cookies[i]}; `
         */
     </script>
 </body>
